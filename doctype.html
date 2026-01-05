@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Today Todo</title>
+  <style>
+    :root{
+      --bg1:#0ea5e9;   /* sky */
+      --bg2:#8b5cf6;   /* violet */
+      --card: rgba(255,255,255,0.16);
+      --card2: rgba(255,255,255,0.10);
+      --stroke: rgba(255,255,255,0.22);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --shadow: 0 18px 55px rgba(0,0,0,0.28);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px 16px;
+      background:
+        radial-gradient(1200px 700px at 10% 10%, rgba(255,255,255,0.28), transparent 55%),
+        radial-gradient(900px 600px at 90% 20%, rgba(255,255,255,0.20), transparent 55%),
+        radial-gradient(900px 700px at 50% 100%, rgba(0,0,0,0.20), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      width:min(520px, 100%);
+      position:relative;
+    }
+
+    .glass{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 22px;
+      padding: 22px 20px 18px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: -0.2px;
+    }
+    .date{
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .form{
+      display:flex;
+      gap: 10px;
+      margin: 12px 0 10px;
+    }
+    .input{
+      flex:1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.24);
+      background: rgba(255,255,255,0.14);
+      color: var(--text);
+      outline:none;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .input::placeholder{ color: rgba(255,255,255,0.65); }
+    .input:focus{
+      border-color: rgba(255,255,255,0.42);
+      background: rgba(255,255,255,0.18);
+      transform: translateY(-1px);
+    }
+
+    .btn{
+      border: none;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: rgba(255,255,255,0.95);
+      font-weight: 700;
+      letter-spacing: -0.1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.14));
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{ filter: brightness(1.05); }
+    .btn:active{ transform: translateY(1px); box-shadow: 0 8px 18px rgba(0,0,0,0.14); }
+
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .linkbtn{
+      border:none;
+      background:transparent;
+      color: rgba(255,255,255,0.88);
+      font-weight: 700;
+      cursor:pointer;
+      padding: 6px 10px;
+      border-radius: 10px;
+      transition: background .12s ease, transform .12s ease;
+    }
+    .linkbtn:hover{ background: rgba(255,255,255,0.12); }
+    .linkbtn:active{ transform: translateY(1px); }
+
+    ul{
+      list-style:none;
+      margin: 12px 0 0;
+      padding: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.10);
+      transition: transform .12s ease, background .12s ease;
+      animation: pop .18s ease both;
+    }
+    .item:hover{ background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width:0;
+      flex:1;
+    }
+
+    .chk{
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      background: rgba(0,0,0,0.12);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      flex: 0 0 auto;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .chk:active{ transform: scale(0.96); }
+    .chk svg{ opacity:0; transform: scale(0.9); transition: opacity .12s ease, transform .12s ease; }
+
+    .text{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size: 15px;
+      letter-spacing: -0.2px;
+    }
+
+    .remove{
+      border:none;
+      cursor:pointer;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.18);
+      transition: background .12s ease, transform .12s ease;
+      flex: 0 0 auto;
+    }
+    .remove:hover{ background: rgba(255,255,255,0.14); }
+    .remove:active{ transform: translateY(1px); }
+
+    .empty{
+      margin: 14px 0 2px;
+      color: rgba(255,255,255,0.78);
+      font-size: 13.5px;
+      text-align:center;
+      padding: 14px 10px;
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.08);
+    }
+
+    @keyframes pop{
+      from{ opacity:0; transform: translateY(6px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* 삭제 애니메이션 */
+    .fadeout{
+      animation: bye .18s ease forwards;
+    }
+    @keyframes bye{
+      to{ opacity:0; transform: translateX(8px); height:0; margin:0; padding-top:0; padding-bottom:0; border-width:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="glass">
+      <header>
+        <h1>오늘의 할 일</h1>
+        <div class="date" id="date"></div>
+      </header>
+
+      <form class="form" id="form" autocomplete="off">
+        <input class="input" id="input" type="text" maxlength="80"
+               placeholder="할 일을 입력하고 Enter…" />
+        <button class="btn" type="submit">추가</button>
+      </form>
+
+      <ul id="list" aria-live="polite"></ul>
+      <div id="empty" class="empty" style="display:none;">아직 할 일이 없어요. 하나 추가해볼까?</div>
+
+      <div class="meta">
+        <div><span id="count">0</span>개 남음</div>
+        <button class="linkbtn" id="clear">전체 삭제</button>
+      </div>
+    </div>
+  </div>
